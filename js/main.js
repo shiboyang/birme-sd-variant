@@ -47,7 +47,7 @@ class BFile {
       this.image = image;
       this.width = image.width;
       this.height = image.height;
-      this.auto_focal(callback);
+       this.auto_focal(callback);
     });
   }
 
@@ -433,11 +433,327 @@ class Birme {
       e.stopPropagation();
       e.preventDefault();
     });
+    const that = this;
     document.querySelector(".tiles-holder").addEventListener("scroll", _ => this.preview_visible(false));
     window.addEventListener("resize", _ => this.preview_visible(true));
     window.addEventListener("mouseup", _ => $(document).off("mousemove"));
+  this.mode = "cdriveGet";
+  // 配置对象
+  this.configT = {
+    baseUrl: 'http://10.0.6.35:8000'
+  };
+  // 维护当前路径的变量
+  this.currentPath = '';
+  this.fetchFiles = fetchFiles;
+  this.handleFileSelectSet = handleFileSelectSet;
+  // 原有的 this.selected 逻辑
+   this.selected = [];
+
+  // 封装的递归 fetch 函数
+  function fetchFiles(url) {
+    fetch(url, {
+      method: 'GET',
+      redirect: 'follow' // 处理重定向
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // 假设返回的数据结构如示例所示
+        const { dir_list, file_list } = data.data;
+        const files = [];
+        if(data.code!=1000){
+          alert(data.message);
+        }
+        // 处理文件夹列表
+        dir_list.forEach(dir => {
+          files.push({
+            name: dir,
+            thumbnailUrl: 'comparison-images/medium/cd.png', // 默认文件夹图片
+            isDirectory: true
+          });
+        });
+        
+        // 处理文件列表
+        that.isModeGet()&&file_list.forEach(file => {
+          let thumbnailUrl = '';
+         // if (file.endsWith('.png')) {
+            if(that.currentPath == ''){
+              thumbnailUrl = `${that.configT.baseUrl}/img/${file}`;
+            }else {
+              thumbnailUrl = `${that.configT.baseUrl}/img${that.currentPath}/${file}`;
+            }
+         // }
+          files.push({
+            name: file,
+            thumbnailUrl: thumbnailUrl,
+            isDirectory: false
+          });
+        });
+
+        // 在这里处理文件列表
+        console.log(files);
+        // 将文件列表渲染到页面上
+        renderFileList(files);
+        that.isModeSet() &&(that.selected = []);
+        that.updateH2WithSelectedFileNameAndPath(that.selected, that.currentPath);
+        // // 递归调用 fetchFiles，拼接新的 URL
+        // files.forEach(file => {
+        //   if (file.isDirectory) {
+        //     fetchFiles(url + '/' + file.name);
+        //   }
+        // });
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
   }
 
+ 
+
+  // 渲染文件列表的函数
+  function renderFileList(files) {
+    const fileListElement = document.getElementById('fileList');
+    fileListElement.innerHTML = ''; // 清空现有内容
+
+    files.forEach(file => {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.innerHTML = `
+        <img src="${file.thumbnailUrl}" alt="${file.name}">
+        <div class="file-name">${file.name}</div>
+      `;
+      // // 检查文件是否在 this.selected 数组中
+      // that.selected.forEach(selectedFile => {
+      //   if (selectedFile.name === file.name) {
+      //     fileItem.classList.add('selected');
+      //   }
+      // });
+      
+      fileItem.addEventListener('click', () => {
+        
+        that.isModeSet() ? handleFileSelectSet(fileItem,file) : handleFileSelect(fileItem,file);
+      });
+      that.isModeSet() && fileItem.addEventListener('dblclick', () => {
+         that.selected = [];
+         that.currentPath += `/${file.name}`;
+         fetchFiles(`${that.configT.baseUrl}/folder${that.currentPath}`);
+    });
+      // fileItem.addEventListener('dblclick', () => {
+      //   handleFileDoubleClick(file);
+      // });
+      fileListElement.appendChild(fileItem);
+    });
+    that.updateBackIconVisibility();
+  }
+  // /// 处理文件双击的函数
+  // function handleFileDoubleClick(file) {
+  //   if (file.isDirectory) {
+  //     // 如果是文件夹，更新当前路径并继续调用 fetchFiles
+  //     this.currentPath += `/${file.name}`;
+  //     fetchFiles(`${config.baseUrl}/folder${this.currentPath}`);
+  //   } else {
+  //     // const index = selected.indexOf(file);
+  //     // if (index > -1) {
+  //     //   // 如果文件已经被选中，则取消选择
+  //     //   selected.splice(index, 1);
+  //     // } else {
+  //     //   // 如果文件没有被选中，则添加到选中的文件列表中
+  //     //   selected.push(file);
+  //     //   fileItem.classList.add('selected');
+  //     // }
+  //     console.log('Selected files:', selected);
+  //     convertImageToFile(file.thumbnailUrl, file.name)
+  //     .then(fileObj => {
+  //       const e = { dataTransfer: { files: [fileObj] } };
+  //       that.add_all(e);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error converting image to file:', error);
+  //     });
+  //   }
+  // }
+   // 处理文件选择的函数
+   function handleFileSelectSet(file,data) {
+     // 如果文件没有被选中，则添加到选中的文件列表中
+        that.selected = [data]; // Only keep the current selected file
+        const fileList = document.querySelectorAll('.file-item');
+        fileList.forEach(item => {
+          item.classList.remove('selected'); // Remove 'selected' class from all other file items
+        });
+        file.classList.add('selected'); // Add 'selected' class to the current file item
+        that.updateH2WithSelectedFileNameAndPath(that.selected, that.currentPath);
+     // }
+      console.log('Selected files:', that.selected);
+   // }
+  }
+  // 处理文件选择的函数
+  function handleFileSelect(file,data) {
+    if (data.isDirectory) {
+      // 如果是文件夹，更新当前路径并继续调用 fetchFiles
+      that.currentPath += `/${data.name}`;
+      fetchFiles(`${that.configT.baseUrl}/folder${that.currentPath}`);
+    } else {
+      const index = that.selected.indexOf(data);
+      if (index > -1) {
+        // 如果文件已经被选中，则取消选择
+        that.selected.splice(index, 1);
+        file.classList.remove('selected');
+      } else {
+        // 如果文件没有被选中，则添加到选中的文件列表中
+        that.selected.push(data);
+        file.classList.add('selected');
+      }
+      console.log('Selected files:', that.selected);
+    }
+  }
+   // });
+  }
+  newCd() {
+      const that = this;
+      const fileListElement = document.getElementById('fileList');
+      const newFileItem = document.createElement('div');
+      newFileItem.className = 'file-item';
+      newFileItem.innerHTML = `
+        <img src="comparison-images/medium/cd.png" alt="创建文件夹">
+        <input type="text" class="file-name-input" placeholder="创建文件夹">
+      `;
+      fileListElement.appendChild(newFileItem);
+
+      const fileNameInput = newFileItem.querySelector('.file-name-input');
+      fileNameInput.focus();
+      fileNameInput.addEventListener('blur', handleFolderNameChange);
+      fileNameInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          handleFolderNameChange();
+        }
+      });
+
+      function handleFolderNameChange() {
+        const newFolderName = fileNameInput.value;
+        // Send newFolderName to the backend
+        // Replace the input element with the new folder item
+        const newFolderItem = document.createElement('div');
+        newFolderItem.className = 'file-item';
+        newFolderItem.innerHTML = `
+          <img src="comparison-images/medium/cd.png" alt="${newFolderName}">
+          <div class="file-name">${newFolderName}</div>
+        `;
+        fetch(`${that.configT.baseUrl}/folder${that.currentPath }${ '/'+ newFolderName}`, {
+          method: 'PUT',
+          redirect: 'follow'
+        })
+          .then(response => {
+            fileListElement.replaceChild(newFolderItem, newFileItem);
+            newFolderItem.addEventListener('click', () => {
+              that.handleFileSelectSet(newFolderItem,{
+                name: newFolderName,
+                thumbnailUrl: 'comparison-images/medium/cd.png', // 默认文件夹图片
+                isDirectory: true
+              }) 
+            });
+
+            newFolderItem.addEventListener('dblclick', () => {
+              that.selected = [];
+              that.currentPath += `/${newFolderName}`;
+              that.fetchFiles(`${that.configT.baseUrl}/folder${that.currentPath}`);
+            });
+          })
+          .catch(error => {
+            // Handle the error
+          });
+        newFolderItem.addEventListener('click', () => {
+          // Handle folder item click event
+        });
+        
+      }
+    }
+  isModeGet(){
+    return this.mode === 'cdriveGet';
+  }
+  isModeSet(){
+    return this.mode === 'cdriveSet';
+  }
+  updateH2WithSelectedFileNameAndPath(selectedFiles, currPath) {
+    // 获取id为cdmodelFont的h2对象
+    const h2Element = document.getElementById('cdmodelFont');
+    
+    if (!h2Element) {
+      console.error('Element with id "cdmodelFont" not found.');
+      return;
+    }
+  
+    // 获取选中的文件的name
+    const selectedFileName = selectedFiles.length > 0 ? selectedFiles[0].name : '';
+  
+    // 拼接选中的文件的name和当前路径currPath
+    
+    const updatedContent = `保存云盘位置${currPath }${selectedFileName ? '/'+selectedFileName : ''}`;
+  
+    // 更新h2元素的内容
+    console.log('更新数据',currPath,selectedFileName);
+    this.isModeSet() && (h2Element.textContent = updatedContent);
+    this.isModeGet() && (h2Element.textContent = '云盘文件选择');
+  }
+  updateBackIconVisibility() {
+    const backIcon = document.getElementById('backIcon');
+    if (this.currentPath === '') {
+      backIcon.style.display = 'none';
+    } else {
+      backIcon.style.display = 'block';
+    }
+  }
+  handleSave(){
+    if(this.isModeGet()){
+      this.selected.forEach(file => {
+        this.convertImageToFile(file.thumbnailUrl, file.name)
+        .then(fileObj => {
+          const e = { dataTransfer: { files: [fileObj] } };
+          this.add_all(e);
+        })
+      });
+      this.selected = [];
+      this.hide_modal("cdrive");
+    }else {
+      this.save_all(false,true);
+      this.hide_modal("cdrive");
+    }
+  }
+  // 返回上级目录的函数
+   goBack() {
+    // if (this.currentPath === '') {
+    //   console.log('Already at the root directory');
+    //   return;
+    // }
+    this.updateBackIconVisibility();
+    const pathParts = this.currentPath.split('/');
+    pathParts.pop(); // 移除最后一个部分
+    this.currentPath = pathParts.join('/');
+    this.fetchFiles(this.currentPath ? `${this.configT.baseUrl}/folder${this.currentPath}` : `${this.configT.baseUrl}/folder`);
+    
+  }
+  openModel(mode){
+    this.mode =  mode;
+    this.currentPath = '';
+    this.updateH2WithSelectedFileNameAndPath(this.selected, this.currentPath);
+    this.isModeSet() && (document.getElementById('newCd').style.display = 'block');
+      this.fetchFiles(`${this.configT.baseUrl}/folder`);
+      this.show_modal("cdrive");
+  }
+  // 将图片地址转换成 File 对象的函数
+   convertImageToFile(imageUrl, fileName) {
+     return fetch(imageUrl, {
+        method: 'GET',
+        redirect: 'follow' // 处理重定向
+        })
+        .then(response => response.blob())
+        .then(blob => {
+          return new File([blob], fileName, { type: blob.type });
+        });
+    }
   add_all(e) {
     this.files_to_add = [];
     let _files = e["dataTransfer"] ? e.dataTransfer.files : e.target.files;
@@ -545,7 +861,7 @@ class Birme {
     }
   }
 
-  save_all(output_zip) {
+  save_all(output_zip,iSsaveCd = false) {
     this.show_modal("loading");
     this.output_zip = output_zip;
     // if (this.files.length == 1) {
@@ -553,10 +869,11 @@ class Birme {
     // }
     this.zip = new JSZip();
     this.files_to_save = this.files.slice(0);
-    this.save_one();
+    this.save_one(iSsaveCd);
   }
 
   save_zip(b, filename) {
+    
     this.zip.file(filename, b, {
       base64: true,
     });
@@ -576,16 +893,30 @@ class Birme {
     }
   }
 
-  save_one() {
+  save_one(iSsaveCd = false) {
     if (this.files_to_save.length == 0) {
       this.hide_modal();
       return;
     }
     let f = this.files_to_save.shift();
-    loadImage(f.path, img => this.process_image(img, f), { orientation: 1 });
+    loadImage(f.path, img => this.process_image(img, f,iSsaveCd), { orientation: 1 });
   }
-
-  process_image(img, file) {
+  postBlob(blob,new_filename) {
+    const selectedName = this.selected[0].name; // 替换为实际的 selected name
+    const url = this.configT.baseUrl + `/img`;
+    const formData = new FormData();
+    formData.append('file', blob, new_filename);
+    formData.append('img_path', `${this.currentPath}${ '/'+selectedName}${'/'+new_filename}`);
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+  };
+  process_image(img, file,iSsaveCd = false) {
+    
     let tw = config.target_width;
     let th = config.target_height;
 
@@ -610,7 +941,6 @@ class Birme {
 
     let smoothingEnabled = true;
     let smoothingQuality = "high";
-
     switch (config.quality_preset) {
       case "low":
       case "medium":
@@ -628,7 +958,6 @@ class Birme {
         console.error(`FATAL ERROR: Unexpected quality_preset=${config.quality_preset}, try re-selecting your chosen downscale quality preset in settings!`);
         throw Error(`FATAL ERROR: Unexpected quality_preset=${config.quality_preset} :(`);
     }
-
     // TODO: SUPPORT JPEG/WEBP QUALITY AND BORDER WIDTH SETTING
     if (config.quality_preset == "hermite") {
       let canvasHermite = document.createElement("canvas");
@@ -651,8 +980,10 @@ class Birme {
       } else {
         canvasHermite.toBlob(
           b => {
-            saveAs(b, new_filename);
-            this.save_one();
+            if(iSsaveCd){
+              this.postBlob(b, new_filename)
+            }else{saveAs(b, new_filename)};
+            this.save_one(iSsaveCd);
           },
           file.output_format.format
         );
@@ -751,8 +1082,10 @@ class Birme {
       if (quality > 0) {
         canvas.toBlob(
           b => {
-            saveAs(b, new_filename);
-            this.save_one();
+            if(iSsaveCd){
+              this.postBlob(b, new_filename)
+            }else{saveAs(b, new_filename)};
+            this.save_one(iSsaveCd);
           },
           output.format,
           quality
@@ -760,8 +1093,10 @@ class Birme {
       } else {
         canvas.toBlob(
           b => {
-            saveAs(b, new_filename);
-            this.save_one();
+            if(iSsaveCd){
+              this.postBlob(b, new_filename)
+            }else{saveAs(b, new_filename)};
+            this.save_one(iSsaveCd);
           },
           output.format
         );
@@ -785,6 +1120,7 @@ class Birme {
   hide_modal() {
     $(".modal").removeClass("show-loading");
     $(".modal").removeClass("show-wm");
+    $(".modal").removeClass("show-cdrive");
   }
 
   _image_mousedown(event) {

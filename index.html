@@ -22,10 +22,10 @@
           <a class="logo mr-4" href="javascript:void(0)" onclick="birme.show_section('main')">Birme</a>
         </li>
         <li class="list-inline-item">
-          <a class="nav-link" href="javascript:void(0)" onclick="birme.show_section('about')">About Birme</a>
+          <!-- <a class="nav-link" href="javascript:void(0)" onclick="birme.show_section('about')">About Birme</a> -->
         </li>
         <li class="list-inline-item">
-          <a class="nav-link" href="https://birme.net/blog/">Blog</a>
+          <!-- <a class="nav-link" href="https://birme.net/blog/">Blog</a> -->
         </li>
       </ul>
     </nav>
@@ -48,8 +48,8 @@
               <label><span>Browse from your computer</span></label>
             </div>
 
-            <p class="mt-4"><a href="https://birme.net">(Looking for the real BIRME version 2?)</a></p>
-            <p class="mt-4"><a href="https://v1.birme.net">(Looking for version 1?)</a></p>
+            <!-- <p class="mt-4"><a href="https://birme.net">(Looking for the real BIRME version 2?)</a></p>
+            <p class="mt-4"><a href="https://v1.birme.net">(Looking for version 1?)</a></p> -->
           </div>
         </div>
         <div class="btn-browse btn btn-primary">
@@ -194,13 +194,17 @@
         <a class="btn btn-sm btn-remove w-50" href="javascript:document.location.reload()">Remove All</a>
         <a class="btn btn-sm btn-reset w-50" href="javascript:config.load(true)">Reset Settings</a>
       </div>
+      <div class="d-flex">
+        <button type="button" onclick="birme.openModel('cdriveGet')" class="btn btn-wm w-50 mr-1">获取云盘文件</button>
+        <button type="button" onclick="birme.openModel('cdriveSet')" class="btn btn-toggle w-50">保存到云盘</button>
+      </div>
     </div></div>
     <div class="section section-about">
       <div class="content col-md-6 offset-md-3 col-xl-4 offset-xl-4">
-        <h2>About</h2>
-        <p>I made this simple copy of BIRME to add more image quality options for Stable Diffusion users who crop training images!</p>
+        <!-- <h2>About</h2> -->
+        <!-- <p>I made this simple copy of BIRME to add more image quality options for Stable Diffusion users who crop training images!</p>
         <p>NOTE: FIREFOX NOT SUPPORTED (<a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingQuality#browser_compatibility">supported browsers</a>)</p>
-        <p><a href="https://birme.net">Support the author of BIRME</a></p>
+        <p><a href="https://birme.net">Support the author of BIRME</a></p> -->
       </div>
     </div>
     <div class="modal">
@@ -215,6 +219,25 @@
         </svg>
         <br />
         Processing...
+      </div>
+      <div class="cdrive">
+       
+        <br /> 
+        <div class="file-manager">
+        <div class="icon " id="backIcon" class="back" onclick="birme.goBack()"><</div>
+        <div class="icon icon-delete " style="position: absolute;left: 1830px;" onclick="birme.hide_modal()"></div>
+          <h2 id="cdmodelFont">云盘文件</h2>
+          <div class="file-list-before">
+            <div class="file-list" id="fileList">
+              <!-- 图片列表将动态生成并插入到这里 -->
+            </div>
+        </div>
+          <div class="d-flex justify-content-center mt-4">
+            <button type="button" id="newCd" onclick="birme.newCd()" class="btn btn-primary mr-2" style="display: none;">新建文件夹</button>
+            <button type="button" onclick="birme.handleSave()" class="btn btn-primary mr-2">保存</button>
+            <button type="button" onclick="birme.hide_modal('cdrive')" class="btn btn-secondary">取消</button>
+          </div>
+        </div>
       </div>
       <div class="wm">
         <div class="wm-preview">

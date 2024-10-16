@@ -10130,10 +10130,12 @@ body.auto-size .ratio {
   pointer-events: none;
   transition: opacity 0.5s;
 }
+.modal .cdrive,
 .modal .loading,
 .modal .wm {
   display: none;
 }
+.modal.show-cdrive,
 .modal.show-loading,
 .modal.show-wm {
   transition-delay: 0.1s;
@@ -10142,6 +10144,9 @@ body.auto-size .ratio {
 }
 .modal.show-loading .loading {
   display: block;
+}
+.modal.show-cdrive .cdrive {
+  display: flex;
 }
 .modal.show-wm .wm {
   display: flex;
@@ -10328,4 +10333,80 @@ body.auto-size .ratio {
 
 .options-holder {
   display: none;
+}
+
+.options-holder {
+  display: none;
+}
+
+.file-manager {
+  width: 1200px; /* 设置宽度为1200px */
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  height: 900px; /* 设置高度为900px */
+  overflow-y: auto; /* 超出高度时显示垂直滚动条 */
+}
+
+.file-manager h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.file-list-before{
+  height: 746px;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  overflow: auto;
+}
+.file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* 调整子元素之间的间距 */
+
+}
+
+.file-item {
+  width: calc(25% - 1px);
+  max-width: 200px; /* 设置最大宽度为200px */
+  max-height: 200px; /* 设置最大高度为200px */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.file-item img {
+  width: 100%;
+  height: auto;
+  max-height: 160px; /* 设置图片最大高度为160px */
+}
+
+.file-name {
+  padding: 10px;
+  background-color: #fff;
+  height: 40px; /* 假设文字部分的高度为40px */
+  line-height: 1.2; /* 调整行高 */
+  word-break: break-all; /* 允许单词在任何字符处换行 */
+}
+.file-item:hover {
+  background-color: #f0f0f0;
+  border-color: #bbb;
+}
+
+.file-item.selected {
+  border: 2px solid blue; /* 更明显的蓝色边框 */
+  background-color: rgba(0, 0, 255, 0.1); /* 添加背景颜色以更明显 */
+}
+
+.back{
+  position: absolute;
+  left: 690px;
+  font-size: 24px;
+   font-weight: bold;
+   margin-top: -6px;
+   cursor: pointer;
 }
