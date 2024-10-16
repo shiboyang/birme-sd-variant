@@ -740,6 +740,9 @@ class Birme {
     this.currentPath = '';
     this.updateH2WithSelectedFileNameAndPath(this.selected, this.currentPath);
     this.isModeSet() && (document.getElementById('newCd').style.display = 'block');
+    this.isModeGet() && (document.getElementById('newCd').style.display = 'none');
+    this.isModeGet() && (document.getElementById('saveButton').innerHTML = '确定');
+    this.isModeSet() && (document.getElementById('saveButton').innerHTML = '保存');
       this.fetchFiles(`${this.configT.baseUrl}/folder`);
       this.show_modal("cdrive");
   }
