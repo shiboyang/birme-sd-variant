@@ -440,7 +440,7 @@ class Birme {
   this.mode = "cdriveGet";
   // 配置对象
   this.configT = {
-    baseUrl: 'http://10.0.6.35:8000'
+    baseUrl: window.BASE_URL
   };
   // 维护当前路径的变量
   this.currentPath = '';
