@@ -448,7 +448,12 @@ class Birme {
   this.handleFileSelectSet = handleFileSelectSet;
   // 原有的 this.selected 逻辑
    this.selected = [];
-
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      // Close the dialog here
+      this.hide_modal()
+    }
+  });
   // 封装的递归 fetch 函数
   function fetchFiles(url) {
     fetch(url, {
@@ -662,6 +667,11 @@ class Birme {
         })
           .then(response => {
             fileListElement.replaceChild(newFolderItem, newFileItem);
+            that.handleFileSelectSet(newFolderItem,{
+              name: newFolderName,
+              thumbnailUrl: 'comparison-images/medium/cd.png', // 默认文件夹图片
+              isDirectory: true
+            }) 
             newFolderItem.addEventListener('click', () => {
               that.handleFileSelectSet(newFolderItem,{
                 name: newFolderName,
