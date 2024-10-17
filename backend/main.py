@@ -25,10 +25,14 @@ app = FastAPI()
 # Comment out or remove the CORSMiddleware configuration
 origins = [
     "http://localhost",
+    "http://localhost:10004",
+    "http://localhost:18080",
     "http://10.0.5.72:10004",
     "http://10.0.6.64:5500",
+    # "http://10.0.6.64:5501",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
+    "*",
 ]
 
 app.add_middleware(
