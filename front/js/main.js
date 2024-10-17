@@ -520,7 +520,7 @@ class Birme {
     fileListElement.innerHTML = ''; // 清空现有内容
     if(that.isModeSet()){
       const fileItemTmp = document.createElement('div');
-      fileItemTmp.addEventListener('click', that.newCd);
+      fileItemTmp.addEventListener('click', () => that.newCd());
       fileItemTmp.className = 'file-item';
       fileItemTmp.innerHTML = `
         <img src="comparison-images/medium/addcd.png" draggable="false" alt="新建文件夹">
@@ -634,18 +634,12 @@ class Birme {
 
       const fileNameInput = newFileItem.querySelector('.file-name-input');
       fileNameInput.focus();
-      fileNameInput.addEventListener('blur', handleFolderNameChange);
-      fileNameInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-          handleFolderNameChange();
-        }
-      });
-
-      function handleFolderNameChange() {
+      const handleFolderNameChange = () => {
         const newFolderName = fileNameInput.value;
         if(!newFolderName)
         {
           alert('文件夹名称不能为空');
+          newFileItem.remove();
           return;
         }
         // Send newFolderName to the backend
@@ -684,6 +678,14 @@ class Birme {
         });
         
       }
+      fileNameInput.addEventListener('blur', handleFolderNameChange);
+      fileNameInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          handleFolderNameChange();
+        }
+      });
+
+
     }
   isModeGet(){
     return this.mode === 'cdriveGet';
