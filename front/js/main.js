@@ -518,12 +518,21 @@ class Birme {
   function renderFileList(files) {
     const fileListElement = document.getElementById('fileList');
     fileListElement.innerHTML = ''; // 清空现有内容
-
+    if(that.isModeSet()){
+      const fileItemTmp = document.createElement('div');
+      fileItemTmp.addEventListener('click', that.newCd);
+      fileItemTmp.className = 'file-item';
+      fileItemTmp.innerHTML = `
+        <img src="comparison-images/medium/addcd.png" draggable="false" alt="新建文件夹">
+        <div class="file-name">新建文件夹</div>
+      `;
+      fileListElement.appendChild(fileItemTmp);
+    }
     files.forEach(file => {
       const fileItem = document.createElement('div');
       fileItem.className = 'file-item';
       fileItem.innerHTML = `
-        <img src="${file.thumbnailUrl}" alt="${file.name}">
+        <img src="${file.thumbnailUrl}" draggable="false" alt="${file.name}">
         <div class="file-name">${file.name}</div>
       `;
       // // 检查文件是否在 this.selected 数组中
@@ -634,6 +643,11 @@ class Birme {
 
       function handleFolderNameChange() {
         const newFolderName = fileNameInput.value;
+        if(!newFolderName)
+        {
+          alert('文件夹名称不能为空');
+          return;
+        }
         // Send newFolderName to the backend
         // Replace the input element with the new folder item
         const newFolderItem = document.createElement('div');
@@ -739,8 +753,8 @@ class Birme {
     this.mode =  mode;
     this.currentPath = '';
     this.updateH2WithSelectedFileNameAndPath(this.selected, this.currentPath);
-    this.isModeSet() && (document.getElementById('newCd').style.display = 'block');
-    this.isModeGet() && (document.getElementById('newCd').style.display = 'none');
+    // this.isModeSet() && (document.getElementById('newCd').style.display = 'block');
+    // this.isModeGet() && (document.getElementById('newCd').style.display = 'none');
     this.isModeGet() && (document.getElementById('saveButton').innerHTML = '确定');
     this.isModeSet() && (document.getElementById('saveButton').innerHTML = '保存');
       this.fetchFiles(`${this.configT.baseUrl}/folder`);

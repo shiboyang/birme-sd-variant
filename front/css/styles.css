@@ -10348,6 +10348,7 @@ body.auto-size .ratio {
   background-color: #f9f9f9;
   height: 900px; /* 设置高度为900px */
   overflow-y: auto; /* 超出高度时显示垂直滚动条 */
+  position: relative;
 }
 
 .file-manager h2 {
@@ -10364,7 +10365,7 @@ body.auto-size .ratio {
   display: flex;
   flex-wrap: wrap;
   gap: 10px; /* 调整子元素之间的间距 */
-
+  -webkit-user-drag: none; /* 对于WebKit浏览器 */
 }
 
 .file-item {
@@ -10404,9 +10405,13 @@ body.auto-size .ratio {
 
 .back{
   position: absolute;
-  left: 690px;
+  left: 31px;
   font-size: 24px;
    font-weight: bold;
    margin-top: -6px;
    cursor: pointer;
 }
+/* img {
+  userselect: none;
+  pointerevents: none;
+} */
