@@ -520,7 +520,7 @@ class Birme {
     fileListElement.innerHTML = ''; // 清空现有内容
     if(that.isModeSet()){
       const fileItemTmp = document.createElement('div');
-      fileItemTmp.addEventListener('click', () => that.newCd());
+      fileItemTmp.addEventListener('click', () => that.newCd(files));
       fileItemTmp.className = 'file-item';
       fileItemTmp.innerHTML = `
         <img src="comparison-images/medium/addcd.png" draggable="false" alt="新建文件夹">
@@ -621,7 +621,7 @@ class Birme {
   }
    // });
   }
-  newCd() {
+  newCd(files) {
       const that = this;
       const fileListElement = document.getElementById('fileList');
       const newFileItem = document.createElement('div');
@@ -641,6 +641,12 @@ class Birme {
           alert('文件夹名称不能为空');
           newFileItem.remove();
           return;
+        }
+        if(files.findIndex(fl =>fl.name == newFolderName) > -1){
+          alert('文件夹名称已存在');
+          newFileItem.remove();
+          return;
+
         }
         // Send newFolderName to the backend
         // Replace the input element with the new folder item
