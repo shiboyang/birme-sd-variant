@@ -1,1 +1,1 @@
-window.BASE_URL = 'http://localhost:18000';
+window.BASE_URL = 'http://10.0.6.35:18000';

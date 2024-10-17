@@ -927,7 +927,7 @@ class Birme {
     loadImage(f.path, img => this.process_image(img, f,iSsaveCd), { orientation: 1 });
   }
   postBlob(blob,new_filename) {
-    const selectedName = this.selected[0].name; // 替换为实际的 selected name
+    const selectedName = this.selected[0] ? this.selected[0].name : ''; // 替换为实际的 selected name
     const url = this.configT.baseUrl + `/img`;
     const formData = new FormData();
     formData.append('file', blob, new_filename);

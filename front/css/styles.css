@@ -10366,6 +10366,8 @@ body.auto-size .ratio {
   flex-wrap: wrap;
   gap: 10px; /* 调整子元素之间的间距 */
   -webkit-user-drag: none; /* 对于WebKit浏览器 */
+  padding-left: 43px;
+  padding-top: 16px;
 }
 
 .file-item {
