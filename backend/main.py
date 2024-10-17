@@ -1,13 +1,14 @@
 import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from starlette.responses import FileResponse, JSONResponse
+from starlette.responses import FileResponse
 
+# OSS_ROOT = "/birme/data"
 OSS_ROOT = "/home/shiby/PycharmProjects/birme-sd-variant/backend/data"
 IMG_SUFFIX = [".png", ".jpeg", ".jpg", ".webp", ".bmp"]
 root_folder = Path(OSS_ROOT)
@@ -24,7 +25,7 @@ app = FastAPI()
 # Comment out or remove the CORSMiddleware configuration
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://10.0.5.72:10004",
     "http://10.0.6.64:5500",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
@@ -113,4 +114,4 @@ async def upload_img(img_path: str = Form(...), file: UploadFile = File(...)) ->
 
 
 if __name__ == "__main__":
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=18000, reload=True)
