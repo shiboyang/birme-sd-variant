@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 from typing import Dict
+import re
 
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form
@@ -8,10 +9,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from starlette.responses import FileResponse
 
-# OSS_ROOT = "/birme/data"
-OSS_ROOT = "/home/shiby/PycharmProjects/birme-sd-variant/backend/data"
+OSS_ROOT = "/birme/"
+# OSS_ROOT = "/home/shiby/PycharmProjects/birme-sd-variant/backend/"
+image_folder = Path(OSS_ROOT + "data")
+model_folder = Path(OSS_ROOT + "model")
 IMG_SUFFIX = [".png", ".jpeg", ".jpg", ".webp", ".bmp"]
-root_folder = Path(OSS_ROOT)
+pattern = re.compile("^\d+_[a-zA-Z0-9]+")
 
 
 class Response(BaseModel):
@@ -51,7 +54,7 @@ def get_folder(folder_path: str = "") -> Response:
     :param folder_path: 目标文件夹
     :return:
     """
-    target_folder = root_folder.joinpath(folder_path)
+    target_folder = image_folder.joinpath(folder_path)
     if not target_folder.exists() or target_folder.is_file():
         return Response(code=1001, data={}, message="Directory is not exist.")
     dir_list = []
@@ -73,10 +76,13 @@ def create_folder(folder_path: str) -> Response:
     新建文件夹接口
     :return:
     """
-    target_folder = root_folder.joinpath(folder_path)
+    target_folder = image_folder.joinpath(folder_path)
     if not target_folder.parent.exists():
         return Response(code=10002, data={}, message="Parameter Error")
     target_folder.mkdir(exist_ok=True)
+    if pattern.match(target_folder.name):
+        project_name = target_folder.parent.name
+        model_folder.joinpath(project_name).mkdir(exist_ok=True)
     return Response(code=1000, data={}, message="success")
 
 
@@ -87,7 +93,7 @@ def get_img(img_path):
     :param img_path: 图片地址
     :return:
     """
-    target_path = root_folder.joinpath(img_path)
+    target_path = image_folder.joinpath(img_path)
     if not target_path.is_file() or not target_path.exists():
         return Response(code=1002, data={}, message="file is not exist.")
 
@@ -108,7 +114,7 @@ async def upload_img(img_path: str = Form(...), file: UploadFile = File(...)) ->
     """
     if img_path.startswith("/"):
         img_path = img_path[1:]
-    target_path = root_folder.joinpath(img_path)
+    target_path = image_folder.joinpath(img_path)
     if not target_path.parent.exists() or not target_path.parent.is_dir():
         return Response(code=1001, data={}, message="Directory is not exist.")
     target_path = target_path.with_name(f"{target_path.stem}-{int(time.time())}{target_path.suffix}")

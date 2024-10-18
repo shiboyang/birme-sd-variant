@@ -10,9 +10,9 @@ RUN mkdir data
 
 COPY ./main.py ./main.py
 
-EXPOSE 8000
+EXPOSE 18000
 
-CMD ["fastapi", "run", "main.py", "--port", "18000"]
+ENTRYPOINT ["uvicorn", "main:app", "--root-path", "/api", "--port", "18000","--host", "0.0.0.0"]
 
 
 
